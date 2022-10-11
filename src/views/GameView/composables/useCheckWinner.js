@@ -1,26 +1,29 @@
-import {toRefs} from "vue";
+import {useModeStore, usePlayingStateStore} from "@/store";
 
 export default function useCheckWinner(options) {
-  const {board: boardRef, winner} = toRefs(options)
-  const board = boardRef.value;
+  const {winner, resetTimer} = options
   const maxRows = 6;
   const maxCols = 7;
+  const playingState = usePlayingStateStore()
+  const modeStore = useModeStore()
 
-  function checkWinner() {
+  function checkWinner(board) {
     for (let row = 0; row < maxRows; row++) {
       for (let col = 0; col < maxCols; col++) {
-        const valAtPosition = board[row][col];
+        const valAtPosition = board.value[row][col];
         if (valAtPosition) {
           const cells = [
-            [...checkDirection(row, col, valAtPosition, 'decline')],
-            [...checkDirection(row, col, valAtPosition, 'incline')],
-            [...checkDirection(row, col, valAtPosition, 'vertical')],
-            [...checkDirection(row, col, valAtPosition, 'horizontal')],
+            [...checkDirection(board, row, col, valAtPosition, 'decline')],
+            [...checkDirection(board, row, col, valAtPosition, 'incline')],
+            [...checkDirection(board, row, col, valAtPosition, 'vertical')],
+            [...checkDirection(board, row, col, valAtPosition, 'horizontal')],
           ]
           for (let checks of cells) {
             if (checks.length >= 4) {
-              console.log(valAtPosition)
               winner.value = {player: valAtPosition, cells: checks};
+              resetTimer.value();
+              playingState.incrementScore(modeStore.vs, valAtPosition)
+              markCells(checks)
               return;
             }
           }
@@ -30,7 +33,7 @@ export default function useCheckWinner(options) {
   }
 
 
-  function checkDirection(row, col, value, direction) {
+  function checkDirection(board, row, col, value, direction) {
     if (row >= maxRows || col >= maxCols) return []
     const directions = {
       'decline': [row + 1, col + 1],
@@ -39,10 +42,17 @@ export default function useCheckWinner(options) {
       'horizontal': [row, col + 1]
     }
     const [next_row, next_col] = directions[direction]
-    if (board[row][col] === value) {
+    if (board.value[row][col] === value) {
       return [
-        [row, col], ...(checkDirection(next_row, next_col, value, direction) || [])
+        [row, col], ...(checkDirection(board, next_row, next_col, value, direction) || [])
       ]
+    }
+  }
+
+  function markCells(cells) {
+    for (let cell of cells) {
+      const el = document.querySelector(`[data-row="${cell[0]}"][data-col="${cell[1]}`);
+      el.classList.add('win')
     }
   }
 

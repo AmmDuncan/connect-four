@@ -13,6 +13,7 @@
     "@fontsource/space-grotesk": "^4.5.10",
     "core-js": "^3.8.3",
     "pinia": "^2.0.21",
+    "pinia-plugin-persistedstate": "^2.3.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
   },

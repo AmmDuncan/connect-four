@@ -75,7 +75,7 @@ export default {
     const router = useRouter()
 
     function handleP2P() {
-      modeStore.setVS('person')
+      modeStore.setVS('player')
       router.push('/game')
     }
 

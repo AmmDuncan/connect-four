@@ -1,7 +1,9 @@
 <template>
-  <transition name="fade" mode="out-in">
-    <router-view/>
-  </transition>
+  <router-view v-slot="{Component}">
+    <transition name="fade" mode="out-in">
+      <component :is="Component"/>
+    </transition>
+  </router-view>
 </template>
 
 <style lang="scss">
@@ -11,6 +13,7 @@
 @import "@/assets/styles/base/base.scss";
 
 #app {
+  position: static;
   font-family: "Space Grotesk", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
