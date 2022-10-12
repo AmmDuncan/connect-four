@@ -2,10 +2,10 @@ import {toRefs, ref} from "vue";
 import useCheckWinner from "@/views/GameView/composables/useCheckWinner";
 
 export default function useMoveCoinThrough(options) {
-  const {activePlayer, board, moving, active, radIndex, resetTimer} = toRefs(options);
+  const {activePlayer, board, moving, active, radIndex, resetTimer, stopTimer} = toRefs(options);
 
   const winner = ref(null);
-  const {checkWinner} = useCheckWinner({board, winner, resetTimer})
+  const {checkWinner} = useCheckWinner({board, winner, resetTimer, stopTimer})
   async function enterExit(el, end=false) {
     setTimeout(() => {
       el.classList.remove("exit");

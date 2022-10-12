@@ -1,7 +1,7 @@
 import {useModeStore, usePlayingStateStore} from "@/store";
 
 export default function useCheckWinner(options) {
-  const {winner, resetTimer} = options
+  const {winner, resetTimer, stopTimer} = options
   const maxRows = 6;
   const maxCols = 7;
   const playingState = usePlayingStateStore()
@@ -17,11 +17,12 @@ export default function useCheckWinner(options) {
             [...checkDirection(board, row, col, valAtPosition, 'incline')],
             [...checkDirection(board, row, col, valAtPosition, 'vertical')],
             [...checkDirection(board, row, col, valAtPosition, 'horizontal')],
-          ]
+          ];
           for (let checks of cells) {
             if (checks.length >= 4) {
               winner.value = {player: valAtPosition, cells: checks};
               resetTimer.value();
+              stopTimer.value();
               playingState.incrementScore(modeStore.vs, valAtPosition)
               markCells(checks)
               return;

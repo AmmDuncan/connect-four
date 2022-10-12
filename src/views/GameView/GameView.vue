@@ -220,13 +220,21 @@ const board = ref([
 const radPos = ref(window.innerWidth / 2);
 const radIndex = ref(0);
 
-const {putHere, winner} = useMoveCoinThrough(reactive({activePlayer, board, active, moving, radIndex, resetTimer}))
+const {putHere, winner} = useMoveCoinThrough(reactive({
+  activePlayer,
+  board,
+  active,
+  moving,
+  radIndex,
+  resetTimer,
+  stopTimer
+}))
 
 // const timer = ref(null);
 const secondsLeft = computed(() => playingState.timeRemaining / 1000);
 
 watch(() => secondsLeft.value, () => {
-  if (secondsLeft.value <= 0) {
+  if (secondsLeft.value < 0) {
     changeTurn()
   }
 })
@@ -246,6 +254,10 @@ function changeTurn() {
   resetTimer()
 }
 
+function stopTimer() {
+  clearInterval(timer);
+}
+
 function resetTimer() {
   clearInterval(timer);
   playingState.setTimeRemaining(15 * 1000);
@@ -262,7 +274,7 @@ function resume() {
   }, 1000)
 }
 
-function reset(restart=false) {
+function reset(restart = false) {
   board.value = [
     [0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0],
