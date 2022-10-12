@@ -27,6 +27,7 @@ export default {
   padding-inline: 2rem;
   border: 3px solid var(--theme);
   border-radius: 2rem;
+  color: var(--black);
   background: var(--white);
   box-shadow: 0 1rem 0 var(--theme);
   font-size: var(--heading-m-size);
