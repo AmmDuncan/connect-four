@@ -269,9 +269,11 @@ function resetTimer() {
 function resume() {
   playingState.resume();
   isMenuOpen.value = false;
-  timer = setInterval(() => {
-    playingState.setTimeRemaining(playingState.timeRemaining - 1000)
-  }, 1000)
+  if (!winner.value) {
+    timer = setInterval(() => {
+      playingState.setTimeRemaining(playingState.timeRemaining - 1000)
+    }, 1000)
+  }
 }
 
 function reset(restart = false) {
