@@ -1,6 +1,8 @@
 <template>
   <div class="root">
 
+    <footer :class="winner ? getPlayerColor(winner.player) : ''"></footer>
+
     <main>
       <div class="container" style="--max-width: 632px">
         <nav>
@@ -157,8 +159,6 @@
 
       </div>
     </main>
-    <footer :class="winner ? getPlayerColor(winner.player) : ''"></footer>
-
 
     <CFModal :isOpen="isMenuOpen" :overlay="true" @close="isMenuOpen = false" h="49rem">
       <div class="menu">
@@ -316,9 +316,10 @@ onMounted(() => {
 @import "GameView.board";
 
 .root {
-  padding-block: 4rem 0;
+  padding-block: 4rem;
   min-height: 100vh;
   overflow-y: hidden;
+  position: relative;
 }
 
 nav {
@@ -370,8 +371,12 @@ nav img {
 }
 
 
+main {
+  z-index: 1;
+}
+
 footer {
-  //position: absolute;
+  position: absolute;
   bottom: 0;
   left: 0;
   min-height: 31vh;
@@ -379,7 +384,7 @@ footer {
   background-color: var(--dark-purple);
   margin-top: -16rem;
   border-radius: 4rem 4rem 0 0;
-  //z-index: 0;
+  z-index: 0;
 
   @media (max-width: 640px) {
     margin-top: -6vw;
