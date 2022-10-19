@@ -152,10 +152,17 @@
           </div>
         </div>
         <div class="announce-winner hard-shadow" v-else-if="winner">
-          <div class="player" v-if="vsCPU && winner.player === 2">CPU</div>
-          <div class="player" v-else>Player {{ winner.player }}</div>
-          <h1>Wins</h1>
-          <div class="nav-btn" @click="reset(false)">Play Again</div>
+          <template v-if="vsCPU">
+            <div class="player" v-if="winner.player === 2">CPU</div>
+            <div class="player" v-else>You</div>
+            <h1>Wins</h1>
+            <div class="nav-btn" @click="reset(false)">Play Again</div>
+          </template>
+          <template v-else>
+            <div class="player" >Player {{ winner.player }}</div>
+            <h1>Wins</h1>
+            <div class="nav-btn" @click="reset(false)">Play Again</div>
+          </template>
         </div>
         <div class="announce-winner hard-shadow" v-else>
           <div class="player">No one wins</div>
@@ -263,7 +270,7 @@ async function playCPU() {
     const boardCopy = board.value.map(row => [...row]);
     const row = getLastEmptyCellRow(col, boardCopy);
     boardCopy[row][col] = 2
-    const  cpuWins = checkWinner(boardCopy)
+    const cpuWins = checkWinner(boardCopy)
     if (cpuWins) {
       await putHere(col, true)
       return;
@@ -280,7 +287,7 @@ async function playCPU() {
 
 function getRandomCol() {
   const availableCols = getAvailableCols(board.value)
-  return  availableCols[Math.ceil(Math.random() * availableCols.length) - 1]
+  return availableCols[Math.ceil(Math.random() * availableCols.length) - 1]
 }
 
 function handlePause() {
