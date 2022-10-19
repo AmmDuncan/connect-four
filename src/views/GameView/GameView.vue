@@ -381,7 +381,6 @@ watch(
     () => activePlayer.value,
     async () => {
       if (activePlayer.value === 2 && vsCPU) {
-        console.log("CPU turn");
         const waitTime = Math.ceil(Math.random() * 3) * 1000;
         setTimeout(async () => {
           if (!winner.value && !isMenuOpen.value) playCPU()
