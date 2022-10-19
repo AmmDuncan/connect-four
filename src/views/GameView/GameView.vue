@@ -155,7 +155,7 @@
           <template v-if="vsCPU">
             <div class="player" v-if="winner.player === 2">CPU</div>
             <div class="player" v-else>You</div>
-            <h1>Wins</h1>
+            <h1>Win{{winner.player === 1 ? '' : 's'}}</h1>
             <div class="nav-btn" @click="reset(false)">Play Again</div>
           </template>
           <template v-else>
