@@ -1,16 +1,12 @@
-import {useModeStore, usePlayingStateStore} from "@/store";
 
-export default function useCheckWinner(options) {
-  const {winner, resetTimer, stopTimer} = options
+export default function useCheckWinner() {
   const maxRows = 6;
   const maxCols = 7;
-  const playingState = usePlayingStateStore()
-  const modeStore = useModeStore()
 
   function checkWinner(board) {
     for (let row = 0; row < maxRows; row++) {
       for (let col = 0; col < maxCols; col++) {
-        const valAtPosition = board.value[row][col];
+        const valAtPosition = board[row][col];
         if (valAtPosition) {
           const cells = [
             [...checkDirection(board, row, col, valAtPosition, 'decline')],
@@ -20,12 +16,7 @@ export default function useCheckWinner(options) {
           ];
           for (let checks of cells) {
             if (checks.length >= 4) {
-              winner.value = {player: valAtPosition, cells: checks};
-              resetTimer.value();
-              stopTimer.value();
-              playingState.incrementScore(modeStore.vs, valAtPosition)
-              markCells(checks)
-              return;
+              return {player: valAtPosition, cells: checks};
             }
           }
         }
@@ -43,7 +34,7 @@ export default function useCheckWinner(options) {
       'horizontal': [row, col + 1]
     }
     const [next_row, next_col] = directions[direction]
-    if (board.value[row][col] === value) {
+    if (board[row][col] === value) {
       return [
         [row, col], ...(checkDirection(board, next_row, next_col, value, direction) || [])
       ]
@@ -58,6 +49,7 @@ export default function useCheckWinner(options) {
   }
 
   return {
-    checkWinner
+    checkWinner,
+    markCells
   }
 }

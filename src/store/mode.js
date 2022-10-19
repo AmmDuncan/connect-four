@@ -2,7 +2,7 @@ import {defineStore} from 'pinia'
 
 export const useModeStore = defineStore('mode', {
   state: () => ({
-    vs: "player",
+    vs: "",
   }),
   getters: {
     vsCPU(state) {
@@ -14,4 +14,5 @@ export const useModeStore = defineStore('mode', {
       this.vs = payload
     }
   },
+  persist: true
 })

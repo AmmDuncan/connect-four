@@ -77,7 +77,7 @@
             <div :class="['cell']" v-for="(col, col_index) in row" :key="`${row_index}, ${col_index}`"
                  :data-row="row_index"
                  :data-col="col_index"
-                 @click="putHere"
+                 @click="putHere(col_index)"
                  @mouseover="setRadPos"
                  :style="{cursor: moving ? 'progress' : 'auto'}"
             >
@@ -112,7 +112,7 @@
 
           </div>
         </div>
-        <div :class="['arrow', playerColor]" v-if="!winner">
+        <div :class="['arrow', playerColor]" v-if="!winner && !draw">
           <svg width="197" height="165" viewBox="0 0 197 165" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g filter="url(#filter0_d_0_3849)">
               <path :class="['arrow-path']" fill-rule="evenodd" clip-rule="evenodd"
@@ -151,9 +151,15 @@
             </div>
           </div>
         </div>
-        <div class="announce-winner hard-shadow" v-else>
-          <div class="player">Player {{ winner.player }}</div>
+        <div class="announce-winner hard-shadow" v-else-if="winner">
+          <div class="player" v-if="vsCPU && winner.player === 2">CPU</div>
+          <div class="player" v-else>Player {{ winner.player }}</div>
           <h1>Wins</h1>
+          <div class="nav-btn" @click="reset(false)">Play Again</div>
+        </div>
+        <div class="announce-winner hard-shadow" v-else>
+          <div class="player">No one wins</div>
+          <h1>DRAW</h1>
           <div class="nav-btn" @click="reset(false)">Play Again</div>
         </div>
 
@@ -184,6 +190,7 @@ import CFModal from "@/components/Modal";
 import ButtonComponent from "@/components/Button";
 import {useRouter} from "vue-router";
 import useMoveCoinThrough from "@/views/GameView/composables/useMoveCoinThrough";
+import useCheckWinner from "@/views/GameView/composables/useCheckWinner";
 
 const modeStore = useModeStore()
 const vsCPU = modeStore.vsCPU;
@@ -220,24 +227,61 @@ const board = ref([
 const radPos = ref(window.innerWidth / 2);
 const radIndex = ref(0);
 
-const {putHere, winner} = useMoveCoinThrough(reactive({
+const {checkWinner} = useCheckWinner()
+const {putHere, winner, draw, getAvailableCols, getLastEmptyCellRow} = useMoveCoinThrough(reactive({
   activePlayer,
   board,
   active,
   moving,
   radIndex,
   resetTimer,
-  stopTimer
+  stopTimer,
+  vsCPU
 }))
 
 // const timer = ref(null);
 const secondsLeft = computed(() => playingState.timeRemaining / 1000);
 
-watch(() => secondsLeft.value, () => {
-  if (secondsLeft.value < 0) {
-    changeTurn()
+watch(() => secondsLeft.value, async () => {
+  if (secondsLeft.value === 0) stopTimer()
+  if (secondsLeft.value <= 0) {
+    await putHere(getRandomCol())
   }
 })
+
+watch(() => activePlayer.value, async () => {
+  if (activePlayer.value === 2 && vsCPU) {
+    console.log('CPU turn');
+    const waitTime = Math.ceil(Math.random() * 3) * 1000;
+    setTimeout(async () => playCPU(), waitTime);
+  }
+})
+
+async function playCPU() {
+  const availableCols = getAvailableCols(board.value);
+  for (let col of availableCols) {
+    const boardCopy = board.value.map(row => [...row]);
+    const row = getLastEmptyCellRow(col, boardCopy);
+    boardCopy[row][col] = 2
+    const  cpuWins = checkWinner(boardCopy)
+    if (cpuWins) {
+      await putHere(col, true)
+      return;
+    }
+    boardCopy[row][col] = 1
+    const oppWins = checkWinner(boardCopy)
+    if (oppWins) {
+      await putHere(col, true)
+      return;
+    }
+  }
+  await putHere(getRandomCol(), true)
+}
+
+function getRandomCol() {
+  const availableCols = getAvailableCols(board.value)
+  return  availableCols[Math.ceil(Math.random() * availableCols.length) - 1]
+}
 
 function handlePause() {
   playingState.pause();
@@ -249,10 +293,10 @@ function quit() {
   router.push('/')
 }
 
-function changeTurn() {
-  active.value = (active.value + 1) % 2
-  resetTimer()
-}
+// function changeTurn() {
+//   active.value = (active.value + 1) % 2
+//   resetTimer()
+// }
 
 function stopTimer() {
   clearInterval(timer);
@@ -262,7 +306,7 @@ function resetTimer() {
   clearInterval(timer);
   playingState.setTimeRemaining(15 * 1000);
   timer = setInterval(() => {
-    playingState.setTimeRemaining(playingState.timeRemaining - 1000)
+    playingState.setTimeRemaining(secondsLeft.value > 0 ? playingState.timeRemaining - 1000 : 0)
   }, 1000)
 }
 
@@ -287,6 +331,7 @@ function reset(restart = false) {
   ];
   renderKey.value++;
   winner.value = null;
+  draw.value = false;
   active.value = (starter.value + 1) % players.value.length;
   starter.value = active.value;
   resetTimer();
